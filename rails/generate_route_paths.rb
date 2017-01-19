@@ -1,4 +1,8 @@
+require_relative "route_transformers"
+
 class GenerateRoutePaths
+  include RouteTransformers
+
   class ModelNotFound < StandardError; end
 
   def self.all_models
@@ -11,18 +15,30 @@ class GenerateRoutePaths
     nil
   end
 
-  attr_reader :route, :filter, :model_id_generator, :special_paths
+  attr_reader :route, :filter
 
-  def initialize(route, route_finder)
+  def initialize(route, filter)
     @route = route
-    @filter = route_finder.filter
-    @model_id_generator = route_finder.model_id_generator
-    @special_paths = route_finder.special_paths
+    @filter = filter
   end
 
   def call
-    if route.verb !~ 'GET' || !path.include?(filter)
+    result = preliminary_result
+
+    if result[:paths]
+      validate_paths(result)
+    else
+      result
+    end
+  end
+
+  private
+
+  def preliminary_result
+    if !path.include?(filter)
       {}
+    elsif route.verb !~ 'GET'
+      RailsRouteFinder.options.verbose ? warning("Not a GET route: #{path}") : {}
     elsif special_paths[path]
       paths(special_paths[path])
     elsif path_parameters.empty?
@@ -34,7 +50,18 @@ class GenerateRoutePaths
     end
   end
 
-  private
+  def validate_paths(result)
+    response_code = RailsRouteFinder.app.get result[:paths].first
+
+    if response_code >= 400
+      RailsRouteFinder.options.verbose ? warning("Ignoring route with #{response_code} response code: #{path}") : {}
+    elsif response_code == 302 && fail_on_redirect_paths.any? { |path| app.response.redirect_url.end_with?(path) }
+      raise "Critical error: A route redirected to the failure path #{app.response.redirect_url}"
+    else
+      # Looks OK, pass the result on
+      result
+    end
+  end
 
   def non_id_path_parameter?
     path_parameters.any? { |param| param !~ /id\z/ }
