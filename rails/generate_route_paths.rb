@@ -5,8 +5,16 @@ class GenerateRoutePaths
 
   class ModelNotFound < StandardError; end
 
-  def self.all_models
-    @all_models ||= ActiveRecord::Base.connection.tables.map { |table| model_for_table(table) }.compact.to_h
+  def self.model_classes
+    @model_classes ||= {}
+  end
+
+  def self.load_rails_models!
+    ActiveRecord::Base.connection.tables.each do |table|
+      model = model_for_table(table)
+
+      model_classes[model.first] = model.last if model
+    end
   end
 
   def self.model_for_table(table)
@@ -55,11 +63,17 @@ class GenerateRoutePaths
 
     if response_code >= 400
       RailsRouteFinder.options.verbose ? warning("Ignoring route with #{response_code} response code: #{path}") : {}
-    elsif response_code == 302 && fail_on_redirect_paths.any? { |path| app.response.redirect_url.end_with?(path) }
-      raise "Critical error: A route redirected to the failure path #{app.response.redirect_url}"
+    elsif response_code == 302 && fail_due_to_redirect?(RailsRouteFinder.app.response.redirect_url)
+      raise "Critical error: The route #{path} redirected to the failure path #{RailsRouteFinder.app.response.redirect_url}"
     else
       # Looks OK, pass the result on
       result
+    end
+  end
+
+  def fail_due_to_redirect?(redirect_url)
+    fail_on_redirect_paths.any? do |descriptor|
+      redirect_url.end_with?(descriptor[:path]) && !descriptor[:except].include?(path)
     end
   end
 
@@ -101,7 +115,7 @@ class GenerateRoutePaths
   end
 
   def find_model(name_options)
-    name_options.map { |name| self.class.all_models[name.singularize.classify] }.compact.last
+    name_options.map { |name| self.class.model_classes[name.singularize.classify] }.compact.last
   end
 
   def path_with_parameters(parameters)

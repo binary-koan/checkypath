@@ -34,6 +34,11 @@ module RouteTransformers
       @path_validators ||= []
       @path_validators << validator
     end
+
+    def fail_on_redirect_to(path, except: [])
+      @fail_on_redirect_paths ||= []
+      @fail_on_redirect_paths << { :path => path, :except => except }
+    end
   end
 
   class SpecialPathHandler
