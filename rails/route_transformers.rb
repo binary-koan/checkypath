@@ -58,6 +58,7 @@ module RouteTransformers
   class ModelIdGenerator
     def initialize
       @generators = {}
+      @fallbacks = {}
       @resolved_generators = {}
     end
 
@@ -65,8 +66,18 @@ module RouteTransformers
       @generators[models] = handler
     end
 
+    def attempt_fallback(model, &handler)
+      @fallbacks[model] = handler
+    end
+
     def [](models)
-      @resolved_generators[models] ||= @generators[models].call if @generators[models]
+      return @resolved_generators[models] if @resolved_generators[models]
+
+      if @generators[models]
+        @resolved_generators[models] = @generators[models].call
+      elsif @fallbacks[models.first]
+        @resolved_generators[models] = @fallbacks[models.first].call(models[1..-1])
+      end
     end
   end
 end

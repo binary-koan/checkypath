@@ -3,26 +3,6 @@ require_relative "route_transformers"
 class GenerateRoutePaths
   include RouteTransformers
 
-  class ModelNotFound < StandardError; end
-
-  def self.model_classes
-    @model_classes ||= {}
-  end
-
-  def self.load_rails_models!
-    ActiveRecord::Base.connection.tables.each do |table|
-      model = model_for_table(table)
-
-      model_classes[model.first] = model.last if model
-    end
-  end
-
-  def self.model_for_table(table)
-    [table.classify, table.classify.constantize]
-  rescue NameError => e
-    nil
-  end
-
   attr_reader :route, :filter
 
   def initialize(route, filter)
@@ -89,8 +69,6 @@ class GenerateRoutePaths
     else
       warning("No handler for models #{models.join(", ")}")
     end
-  rescue ModelNotFound => e
-    warning(e.message)
   end
 
   def find_models(path)
@@ -99,23 +77,15 @@ class GenerateRoutePaths
 
     path_parts.each do |part|
       if part == ':id'
-        discovered_models << find_model(previous_parts)
-        raise ModelNotFound, "Can't find a model name in: #{previous_parts.join("/")}" if discovered_models.last.nil?
+        discovered_models << (previous_parts.last.in?(%w(show edit)) ? previous_parts[-2] : previous_parts.last)
       elsif part =~ /:([a-z_]+)_id/
-        discovered_models << find_model([$1])
-        raise ModelNotFound, "ID parameter doesn't correspond to a model: #{$1}" if discovered_models.last.nil?
+        discovered_models << $1.pluralize
       else
         previous_parts << part
       end
     end
 
     discovered_models
-  rescue NameError => e
-    raise ModelNotFound, "Couldn't find model: #{e.message}"
-  end
-
-  def find_model(name_options)
-    name_options.map { |name| self.class.model_classes[name.singularize.classify] }.compact.last
   end
 
   def path_with_parameters(parameters)
