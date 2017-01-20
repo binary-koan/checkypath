@@ -75,6 +75,14 @@ button {
       background: darken(#43941d, 10%)
     }
   }
+
+  &.danger {
+    background: #ba0408;
+
+    &:hover {
+      background: darken(#ba0408, 10%);
+    }
+  }
 }
 
 form {
@@ -211,6 +219,8 @@ form {
     h2 {
       margin: 0 0 0.25rem 0;
       font-size: 1.25rem;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     p {
@@ -226,6 +236,35 @@ form {
     .path-and-baseurl {
       flex: 1;
       margin: 0 1rem;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .action-previous {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    .action-restart {
+      background: none;
+      color: $grey;
+    }
+
+    #bad-message {
+      min-width: 0;
+      max-width: 20rem;
+      line-height: 1.9rem;
+      border-right: none;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-color: #ba0408;
+    }
+
+    .action-next-bad {
+      margin-right: 1rem;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
   }
 }

@@ -46,6 +46,7 @@
       <iframe></iframe>
 
       <div class="controls">
+        <button class="action-restart large secondary" type="button">&times;</button>
         <button class="action-previous large secondary" type="button">←</button>
         <div class="paths-count">0/0</div>
         <div class="loader done"></div>
@@ -53,12 +54,15 @@
           <h2 class="path">path</h2>
           <p class="baseurl">baseUrl</p>
         </div>
+        <input id="bad-message" type="text" placeholder="Message ..." />
+        <button class="action-next-bad large danger" type="button">Bad →</button>
         <button class="action-next large success" type="button">Good →</button>
       </div>
     </section>
 
     <section id="finished" class="page">
       <h1>DONE</h1>
+      <textarea id="bad-pages-summary" rows="10"></textarea>
       <button class="action-restart" type="button">Start again</button>
     </section>
 
