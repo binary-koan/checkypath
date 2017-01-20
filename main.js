@@ -85,6 +85,8 @@ const store = (() => {
 
       if (currentIndex != undefined && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1)
+      } else if (currentIndex === 0) {
+        setCurrentIndex(undefined)
       }
     }),
 
