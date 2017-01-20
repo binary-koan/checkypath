@@ -64,18 +64,14 @@ const store = (() => {
     }
   }
 
-  // Action boilerplate
-  const changeListeners = []
-
-  function action(name, handler) {
-    return data => {
-      console.log(`Action: ${name}`, data)
-      handler(data)
-      changeListeners.forEach(listener => listener(resolveState()))
+  function markGoodPage() {
+    if (state.paths[state.currentIndex]) {
+      const badPages = state.badPages
+      badPages[state.currentIndex] = null
+      localStorage.setItem("TestThings_badPages", JSON.stringify(badPages))
     }
   }
 
-  // Public actions
   function goNext() {
     const { currentIndex, paths } = state
 
@@ -88,6 +84,18 @@ const store = (() => {
     }
   }
 
+  // Action boilerplate
+  const changeListeners = []
+
+  function action(name, handler) {
+    return data => {
+      console.log(`Action: ${name}`, data)
+      handler(data)
+      changeListeners.forEach(listener => listener(resolveState()))
+    }
+  }
+
+  // Public actions
   const actions = {
     setBaseUrl: action("setBaseUrl", setBaseUrl),
 
@@ -107,7 +115,12 @@ const store = (() => {
       }
     }),
 
-    markBadPageAndGoNext: action("markBadPageAndGoNext", message => {
+    markGoodAndGoNext: action("markGoodAndGoNext", () => {
+      markGoodPage()
+      goNext()
+    }),
+
+    markBadAndGoNext: action("markBadAndGoNext", message => {
       markBadPage(message)
       goNext()
     }),
@@ -178,12 +191,21 @@ function updateIframeSrc(state) {
   }
 }
 
+function updateBadPageDetails(state) {
+  const badPage = state.badPages[state.currentIndex]
+
+  if (badPage) {
+    document.querySelector("#bad-message").value = badPage.message
+  } else {
+    document.querySelector("#bad-message").value = ""
+  }
+}
+
 function updateBadPagesSummary(state) {
   const badPageDetails = state.badPages.filter(Boolean).map(({ path, message }) =>
     `# ${message || "(This page doesn't look right)"}\n${path}\n`
   )
 
-  //TODO show bad page message when going back to it, unset when marking as good
   document.querySelector("#bad-pages-summary").value = badPageDetails.join("\n")
 
   if (badPageDetails.length) {
@@ -201,6 +223,7 @@ store.subscribe(state => {
   updatePathCounts(state)
   updatePathAndBaseUrl(state)
   updateIframeSrc(state)
+  updateBadPageDetails(state)
   updateBadPagesSummary(state)
 
   document.querySelector("#paths").value = state.originalPaths || ""
@@ -209,7 +232,11 @@ store.subscribe(state => {
 
 // Events
 document.querySelectorAll(".action-next").forEach(el => {
-  el.addEventListener("click", () => store.goNext())
+  el.addEventListener("click", () => store.markGoodAndGoNext())
+})
+
+document.querySelector(".action-next-bad").addEventListener("click", () => {
+  store.markBadAndGoNext(document.querySelector("#bad-message").value)
 })
 
 document.querySelectorAll(".action-previous").forEach(el => {
@@ -218,11 +245,6 @@ document.querySelectorAll(".action-previous").forEach(el => {
 
 document.querySelectorAll(".action-restart").forEach(el => {
   el.addEventListener("click", () => store.reset())
-})
-
-document.querySelector(".action-next-bad").addEventListener("click", () => {
-  store.markBadPageAndGoNext(document.querySelector("#bad-message").value)
-  document.querySelector("#bad-message").value = ""
 })
 
 document.querySelector("#paths").addEventListener("change", e => {
