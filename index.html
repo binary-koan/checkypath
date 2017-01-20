@@ -7,7 +7,7 @@
   </head>
 
   <body>
-    <section id="setup" class="page">
+    <section id="setup" class="page boundary-page">
       <div class="yay">
         <h1>Test <strong>all</strong> the things!</h1>
         <img src="images/yay.jpg" alt="CAN TEST TEH THINGS" />
@@ -60,10 +60,31 @@
       </div>
     </section>
 
-    <section id="finished" class="page">
-      <h1>DONE</h1>
-      <textarea id="bad-pages-summary" rows="10"></textarea>
-      <button class="action-restart" type="button">Start again</button>
+    <section id="finished" class="page boundary-page">
+      <div class="done">
+        <h1>Done!</h1>
+        <img src="images/done.jpg" alt="TESTED TEH THINGS" />
+      </div>
+
+      <form>
+        <div class="field">
+          <label>
+            <span class="if-any-bad-pages">You marked these pages as bad. Time to go yell at a dev.</span>
+            <span class="if-no-bad-pages">You marked all the pages as looking good! Awesome!</span>
+          </label>
+
+          <p class="description if-any-bad-pages">
+            Remember, if you save this text somewhere, you can go back through just these
+            pages next time by pasting it into the box on the homepage.
+          </p>
+
+          <textarea id="bad-pages-summary" class="if-any-bad-pages" rows="10"></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="action-restart secondary" type="button">Start again</button>
+        </div>
+      </form>
     </section>
 
     <script src="main.js"></script>

@@ -185,6 +185,14 @@ function updateBadPagesSummary(state) {
 
   //TODO show bad page message when going back to it, unset when marking as good
   document.querySelector("#bad-pages-summary").value = badPageDetails.join("\n")
+
+  if (badPageDetails.length) {
+    document.querySelectorAll(".if-any-bad-pages").forEach(el => el.classList.remove("hidden"))
+    document.querySelectorAll(".if-no-bad-pages").forEach(el => el.classList.add("hidden"))
+  } else {
+    document.querySelectorAll(".if-any-bad-pages").forEach(el => el.classList.add("hidden"))
+    document.querySelectorAll(".if-no-bad-pages").forEach(el => el.classList.remove("hidden"))
+  }
 }
 
 store.subscribe(state => {
