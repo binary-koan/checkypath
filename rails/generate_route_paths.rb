@@ -7,7 +7,7 @@ class GenerateRoutePaths
 
   def initialize(route, filter)
     @route = route
-    @filter = filter
+    @filter = filter || ""
   end
 
   def call

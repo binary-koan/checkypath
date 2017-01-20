@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require "pathname"
+
+rails_dir = ARGV.shift
+
+main_file = File.expand_path("../main.rb", __FILE__)
+config_file = Pathname.new(ARGV.shift).realpath
+
+def extra_args
+  ARGV.map { |arg| /\s/.match(arg) ? "\"#{arg}\"" : arg }.join(" ")
+end
+
+exec "cd #{rails_dir} && bundle exec ruby -r\"./config/environment\" #{main_file} #{config_file} #{extra_args}"

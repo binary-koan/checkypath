@@ -33,7 +33,7 @@ module RailsRouteFinder
         end
       end
 
-      yield paths, warnings
+      yield paths.uniq, warnings
     end
   end
 end
