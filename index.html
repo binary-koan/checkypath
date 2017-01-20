@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>Test the things</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <section id="setup" class="page">
+      <div class="yay">
+        <h1>Test <strong>all</strong> the things!</h1>
+        <img src="images/yay.jpg" alt="CAN TEST TEH THINGS" />
+      </div>
+
+      <div class="not-yay">
+        <h1>Test <strong>all</strong> the things?</h1>
+        <img src="images/not-yay.jpg" alt="can test teh things?" />
+      </div>
+
+      <form>
+        <div class="field">
+          <label for="base-url">Base URL</label>
+          <input id="base-url" type="text" />
+        </div>
+
+        <div class="field">
+          <label for="paths">Paths</label>
+          <p class="description">
+            Enter a list of paths relative to the base URL, separated by newlines.
+            Lines starting with a <code>#</code> will be ignored.
+          </p>
+          <div class="file-input">
+            <input id="paths-file" type="file" aria-label="Upload paths file" />
+          </div>
+          <textarea id="paths" rows="5" placeholder="Or enter paths manually ..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="start" class="action-next large" type="button">Start →</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="in-progress" class="page">
+      <iframe></iframe>
+
+      <div class="controls">
+        <button class="action-previous large secondary" type="button">←</button>
+        <div class="paths-count">0/0</div>
+        <div class="loader done"></div>
+        <div class="path-and-baseurl">
+          <h2 class="path">path</h2>
+          <p class="baseurl">baseUrl</p>
+        </div>
+        <button class="action-next large success" type="button">Good →</button>
+      </div>
+    </section>
+
+    <section id="finished" class="page">
+      <h1>DONE</h1>
+      <button class="action-restart" type="button">Start again</button>
+    </section>
+
+    <script src="main.js"></script>
+  </body>
+</html>
